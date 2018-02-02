@@ -8,10 +8,10 @@ import (
 )
 
 func main() {
-	findSuperpermutations("123456")
+	fmt.Println(findSuperpermutation("1234567"))
 }
 
-func findSuperpermutations(value string) string {
+func findSuperpermutation(value string) string {
 	valLength := len(value)
 	rolls := []int{}
 	rollsLength := factorial(valLength-1)*valLength - 1
@@ -25,36 +25,37 @@ func findSuperpermutations(value string) string {
 			rolls[j]++
 		}
 	}
-	guesses := findNext(value, valLength, 0, rolls)
+	superpermutation := findNext(value, valLength, 0, &rolls)
 	fmt.Println("|")
-	for _, guess := range guesses {
-		if isSuperpermutation(value, guess) {
-			fmt.Println("found", guess)
-		}
+	if isSuperpermutation(value, superpermutation) {
+		return superpermutation
 	}
-	return ""
+	return "err"
 }
 
-func findNext(s string, initialLength, index int, rolls []int) []string {
-	if index >= len(rolls) {
-		if rand.Float32() < 0.001 {
-			fmt.Print("*")
-		}
-		return []string{s}
+func findNext(s string, initialLength, index int, rolls *[]int) string {
+	if rand.Float32() < 0.001 {
+		fmt.Print("*")
 	}
-	offset := rolls[index]
+	if index >= len(*rolls) {
+		return s
+	}
+	offset := (*rolls)[index]
 	newstr := s[len(s)-initialLength : len(s)-initialLength+offset]
 	var options []string
-	if offset < 4 || index < len(rolls)/2-1 {
+	if offset < 4 || index < len(*rolls)/2-1 {
 		options = []string{reverse(newstr)}
 	} else {
 		options = permutations(strings.Split(newstr, ""))[1:]
 	}
-	var res []string
 	for _, o := range options {
-		for _, m := range findNext(s+o, initialLength, index+1, rolls) {
-			res = append(res, m)
+		if strings.Index(s, s[len(s)-initialLength+offset:]+o) != -1 {
+			continue
+		}
+		guess := findNext(s+o, initialLength, index+1, rolls)
+		if guess != "" {
+			return guess
 		}
 	}
-	return res
+	return ""
 }
