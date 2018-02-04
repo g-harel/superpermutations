@@ -3,12 +3,11 @@ package main
 import (
 	"fmt"
 	"math"
-	"math/rand"
 	"strings"
 )
 
 func main() {
-	fmt.Println(findSuperpermutation("12345"))
+	fmt.Println(findSuperpermutation("1234567"))
 }
 
 func findSuperpermutation(value string) string {
@@ -23,40 +22,58 @@ func findSuperpermutation(value string) string {
 			sequence[j]++
 		}
 	}
-	// finding a superpermutation
-	superpermutation := findNext(value, length, 0, &sequence)
-	fmt.Println("|")
-	// sanity check
-	if isSuperpermutation(value, superpermutation) {
-		return superpermutation
+	sp := value
+	for i := 0; i < shifts/2+1; i++ {
+		sp += reverse(sp[len(sp)-length : len(sp)-length+sequence[i]])
+	}
+	sp = sp[:len(sp)-len(value)+1]
+	ss := sp + reverse(sp)[1:]
+	if isSuperpermutation(value, ss) {
+		return ss
 	}
 	return "err"
 }
 
-func findNext(s string, length, index int, sequence *[]int) string {
-	// visual progress feedback
-	if rand.Float32() < 0.001 {
-		fmt.Print("*")
+func reverse(s string) string {
+	result := ""
+	for _, v := range s {
+		result = string(v) + result
 	}
-	if index >= len(*sequence) {
-		return s
+	return result
+}
+
+func factorial(a int) int {
+	if a == 0 {
+		return 1
 	}
-	offset := (*sequence)[index]
-	newstr := s[len(s)-length : len(s)-length+offset]
-	var options []string
-	if offset < 4 || index < len(*sequence)/2-1 {
-		options = []string{reverse(newstr)}
-	} else {
-		options = permutations(strings.Split(newstr, ""))[1:]
+	b := a
+	for i := 2; i < a; i++ {
+		b *= i
 	}
-	for _, o := range options {
-		if strings.Index(s, s[len(s)-length+offset:]+o) != -1 {
-			continue
+	return b
+}
+
+func isSuperpermutation(input, guess string) bool {
+	for _, permutation := range permutations(strings.Split(input, "")) {
+		if strings.Index(guess, permutation) == -1 {
+			return false
 		}
-		guess := findNext(s+o, length, index+1, sequence)
-		if guess != "" {
-			return guess
+	}
+	return true
+}
+
+func permutations(input []string) []string {
+	if len(input) == 1 {
+		return input
+	}
+	p := []string{}
+	for i, char := range input {
+		subset := []string{}
+		subset = append(subset, input[:i]...)
+		subset = append(subset, input[i+1:]...)
+		for _, s := range permutations(subset) {
+			p = append(p, char+s)
 		}
 	}
-	return ""
+	return p
 }
