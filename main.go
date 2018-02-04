@@ -8,51 +8,52 @@ import (
 )
 
 func main() {
-	fmt.Println(findSuperpermutation("1234567"))
+	fmt.Println(findSuperpermutation("12345"))
 }
 
 func findSuperpermutation(value string) string {
-	valLength := len(value)
-	rolls := []int{}
-	rollsLength := factorial(valLength-1)*valLength - 1
-	for i := 0; i < rollsLength; i++ {
-		rolls = append(rolls, 0)
-	}
-	for i := 1; i < valLength; i++ {
-		initial := int(math.Floor(float64(rollsLength) / float64(factorial(i+1))))
+	length := len(value)
+	shifts := factorial(length-1)*length - 1
+	sequence := make([]int, shifts)
+	// populating the sequence with values.
+	for i := 1; i < length; i++ {
+		initial := int(math.Floor(float64(shifts) / float64(factorial(i+1))))
 		interval := initial + 1
-		for j := initial; j < rollsLength; j += interval {
-			rolls[j]++
+		for j := initial; j < shifts; j += interval {
+			sequence[j]++
 		}
 	}
-	superpermutation := findNext(value, valLength, 0, &rolls)
+	// finding a superpermutation
+	superpermutation := findNext(value, length, 0, &sequence)
 	fmt.Println("|")
+	// sanity check
 	if isSuperpermutation(value, superpermutation) {
 		return superpermutation
 	}
 	return "err"
 }
 
-func findNext(s string, initialLength, index int, rolls *[]int) string {
+func findNext(s string, length, index int, sequence *[]int) string {
+	// visual progress feedback
 	if rand.Float32() < 0.001 {
 		fmt.Print("*")
 	}
-	if index >= len(*rolls) {
+	if index >= len(*sequence) {
 		return s
 	}
-	offset := (*rolls)[index]
-	newstr := s[len(s)-initialLength : len(s)-initialLength+offset]
+	offset := (*sequence)[index]
+	newstr := s[len(s)-length : len(s)-length+offset]
 	var options []string
-	if offset < 4 || index < len(*rolls)/2-1 {
+	if offset < 4 || index < len(*sequence)/2-1 {
 		options = []string{reverse(newstr)}
 	} else {
 		options = permutations(strings.Split(newstr, ""))[1:]
 	}
 	for _, o := range options {
-		if strings.Index(s, s[len(s)-initialLength+offset:]+o) != -1 {
+		if strings.Index(s, s[len(s)-length+offset:]+o) != -1 {
 			continue
 		}
-		guess := findNext(s+o, initialLength, index+1, rolls)
+		guess := findNext(s+o, length, index+1, sequence)
 		if guess != "" {
 			return guess
 		}
