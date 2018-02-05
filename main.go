@@ -2,44 +2,57 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"strings"
 )
 
 func main() {
-	fmt.Println(findSuperpermutation("1234567"))
+	fmt.Println(findSuperpermutation("12345678"))
 }
 
 func findSuperpermutation(value string) string {
 	length := len(value)
-	shifts := factorial(length-1)*length - 1
+	shifts := factorial(length) / 2
 	sequence := make([]int, shifts)
-	// populating the sequence with values.
-	for i := 1; i < length; i++ {
-		initial := int(math.Floor(float64(shifts) / float64(factorial(i+1))))
+
+	// populating the shift sequence with values.
+	for i := 2; i <= length; i++ {
+		initial := int(2 * (shifts - 1) / factorial(i))
 		interval := initial + 1
 		for j := initial; j < shifts; j += interval {
 			sequence[j]++
 		}
 	}
-	sp := value
-	for i := 0; i < shifts/2+1; i++ {
-		sp += reverse(sp[len(sp)-length : len(sp)-length+sequence[i]])
+
+	// creating an empty output array
+	outlen := 0
+	for i := 1; i <= length; i++ {
+		outlen += factorial(i)
 	}
-	sp = sp[:len(sp)-len(value)+1]
-	ss := sp + reverse(sp)[1:]
-	if isSuperpermutation(value, ss) {
-		return ss
+	out := make([]rune, outlen)
+
+	// adding initial values to output array
+	for i, r := range value {
+		out[i] = r
+		out[outlen-i-1] = r
+	}
+
+	// adding all remaining values to the output
+	cur := length
+	for _, inc := range sequence {
+		newchars := out[cur-length : cur-length+inc]
+		for j, c := range newchars {
+			out[cur+inc-j-1] = c
+			out[outlen-cur-inc+j] = c
+		}
+		cur += inc
+	}
+
+	// sanity check
+	sp := string(out)
+	if isSuperpermutation(value, sp) {
+		return sp
 	}
 	return "err"
-}
-
-func reverse(s string) string {
-	result := ""
-	for _, v := range s {
-		result = string(v) + result
-	}
-	return result
 }
 
 func factorial(a int) int {
