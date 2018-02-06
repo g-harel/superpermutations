@@ -5,8 +5,15 @@ import (
 	"strings"
 )
 
+// TODO update readme
+// TODO length (number) from cli + make check an option
+// TODO limit size
 func main() {
-	fmt.Println(findSuperpermutation("12345678"))
+	value := "12345678"
+	sp := findSuperpermutation(value)
+	if isSuperpermutation(value, sp) {
+		fmt.Println(sp)
+	}
 }
 
 func findSuperpermutation(value string) string {
@@ -16,15 +23,15 @@ func findSuperpermutation(value string) string {
 
 	// populating the shift sequence with values.
 	for i := 2; i <= length; i++ {
-		initial := int(2 * (shifts - 1) / factorial(i))
+		initial := uint64(2 * (shifts - 1) / factorial(i))
 		interval := initial + 1
-		for j := initial; j < shifts; j += interval {
+		for j := uint64(initial); j < shifts; j += interval {
 			sequence[j]++
 		}
 	}
 
 	// creating an empty output array
-	outlen := 0
+	outlen := uint64(0)
 	for i := 1; i <= length; i++ {
 		outlen += factorial(i)
 	}
@@ -33,39 +40,35 @@ func findSuperpermutation(value string) string {
 	// adding initial values to output array
 	for i, r := range value {
 		out[i] = r
-		out[outlen-i-1] = r
+		out[outlen-uint64(i+1)] = r
 	}
 
 	// adding all remaining values to the output
 	cur := length
 	for _, inc := range sequence {
-		newchars := out[cur-length : cur-length+inc]
-		for j, c := range newchars {
-			out[cur+inc-j-1] = c
-			out[outlen-cur-inc+j] = c
+		for i := 0; i < inc; i++ {
+			out[cur+inc-i-1] = out[cur-length+i]
+			out[outlen-uint64(cur+inc-i)] = out[cur-length+i]
 		}
 		cur += inc
 	}
 
 	// sanity check
-	sp := string(out)
-	if isSuperpermutation(value, sp) {
-		return sp
-	}
-	return "err"
+	return string(out)
 }
 
-func factorial(a int) int {
+func factorial(a int) uint64 {
 	if a == 0 {
 		return 1
 	}
-	b := a
+	b := uint64(a)
 	for i := 2; i < a; i++ {
-		b *= i
+		b *= uint64(i)
 	}
 	return b
 }
 
+// TODO imporve perf (goroutines?)
 func isSuperpermutation(input, guess string) bool {
 	for _, permutation := range permutations(strings.Split(input, "")) {
 		if strings.Index(guess, permutation) == -1 {
