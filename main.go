@@ -1,37 +1,96 @@
 package main
 
 import (
-	"fmt"
+	"io/ioutil"
 	"strings"
+
+	"github.com/fatih/color"
+	"github.com/spf13/cobra"
 )
 
-// TODO update readme
-// TODO length (number) from cli + make check an option
-// TODO limit size
 func main() {
-	value := "12345678"
-	sp := findSuperpermutation(value)
-	if isSuperpermutation(value, sp) {
-		fmt.Println(sp)
+	var check bool
+	var length int
+	var print bool
+	var write string
+
+	rootCmd := &cobra.Command{
+		Use: "superpermutations",
+		Run: func(cmd *cobra.Command, args []string) {
+			cli(check, length, print, write)
+		},
+	}
+
+	rootCmd.PersistentFlags().BoolVar(&check, "check", false, "check correctness of result")
+	rootCmd.PersistentFlags().BoolVar(&print, "print", false, "print the result (may be very large)")
+	rootCmd.PersistentFlags().IntVar(&length, "length", 5, "set input string length (max 16)")
+	rootCmd.PersistentFlags().StringVar(&write, "write", "", "write result to a file")
+
+	rootCmd.Execute()
+}
+
+func cli(check bool, length int, print bool, write string) {
+	min := 0
+	max := 13
+	if length <= min {
+		color.Red("Error: length must be bigger than %d\n", min)
+		return
+	} else if length > max {
+		color.Red("Error: lengths above %d are not supported (maximum slice size)\n", max)
+		return
+	}
+
+	chars := "0123456789abcdef"
+	value := ""
+	for i := 0; i < length; i++ {
+		value += string(chars[i])
+	}
+
+	color.White("Computing for length %d ...", length)
+
+	sp := Find(value)
+
+	if print {
+		color.Magenta(sp)
+	}
+
+	color.Cyan("Found, size: %d chars\n", len(sp))
+
+	if check {
+		color.White("Checking ...")
+		if isSuperpermutation(value, sp) {
+			color.Cyan("Check has passed!")
+		}
+	}
+
+	if write != "" {
+		color.White("Writing ...")
+		err := ioutil.WriteFile(write, []byte(sp), 0644)
+		if err != nil {
+			color.Red("Error: could not write to file \"%v\"\n", write)
+		} else {
+			color.Cyan("Written successfully to \"%v\"", write)
+		}
 	}
 }
 
-func findSuperpermutation(value string) string {
+// Find computes a superpermutation of the input string.
+func Find(value string) string {
 	length := len(value)
 	shifts := factorial(length) / 2
 	sequence := make([]int, shifts)
 
 	// populating the shift sequence with values.
 	for i := 2; i <= length; i++ {
-		initial := uint64(2 * (shifts - 1) / factorial(i))
+		initial := 2 * (shifts - 1) / factorial(i)
 		interval := initial + 1
-		for j := uint64(initial); j < shifts; j += interval {
+		for j := initial; j < shifts; j += interval {
 			sequence[j]++
 		}
 	}
 
 	// creating an empty output array
-	outlen := uint64(0)
+	outlen := 0
 	for i := 1; i <= length; i++ {
 		outlen += factorial(i)
 	}
@@ -40,7 +99,7 @@ func findSuperpermutation(value string) string {
 	// adding initial values to output array
 	for i, r := range value {
 		out[i] = r
-		out[outlen-uint64(i+1)] = r
+		out[outlen-i-1] = r
 	}
 
 	// adding all remaining values to the output
@@ -48,22 +107,21 @@ func findSuperpermutation(value string) string {
 	for _, inc := range sequence {
 		for i := 0; i < inc; i++ {
 			out[cur+inc-i-1] = out[cur-length+i]
-			out[outlen-uint64(cur+inc-i)] = out[cur-length+i]
+			out[outlen-cur-inc+i] = out[cur-length+i]
 		}
 		cur += inc
 	}
 
-	// sanity check
 	return string(out)
 }
 
-func factorial(a int) uint64 {
+func factorial(a int) int {
 	if a == 0 {
 		return 1
 	}
-	b := uint64(a)
+	b := a
 	for i := 2; i < a; i++ {
-		b *= uint64(i)
+		b *= i
 	}
 	return b
 }
