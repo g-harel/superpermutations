@@ -40,5 +40,17 @@ When the shift (`s`) is larger than one, the first `s` characters of the most re
 ## Running
 
 ```shell
-$ go run *.go
+$ go get -u github.com/g-harel/superpermutations
+```
+
+```
+Usage:
+  superpermutations [flags]
+
+Flags:
+      --check          check correctness of result
+  -h, --help           help for superpermutations
+      --length int     set input string length (max 16) (default 5)
+      --print          print the result (may be very large)
+      --write string   write result to a file
 ```
