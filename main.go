@@ -1,8 +1,11 @@
 package main
 
 import (
+	"index/suffixarray"
 	"io/ioutil"
+	"math"
 	"strings"
+	"sync"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -21,10 +24,10 @@ func main() {
 		},
 	}
 
-	rootCmd.PersistentFlags().BoolVar(&check, "check", false, "check correctness of result")
-	rootCmd.PersistentFlags().BoolVar(&print, "print", false, "print the result (may be very large)")
-	rootCmd.PersistentFlags().IntVar(&length, "length", 5, "set input string length (max 16)")
-	rootCmd.PersistentFlags().StringVar(&write, "write", "", "write result to a file")
+	rootCmd.PersistentFlags().BoolVarP(&check, "check", "c", false, "check correctness of result")
+	rootCmd.PersistentFlags().BoolVarP(&print, "print", "p", false, "print the result (may be very large)")
+	rootCmd.PersistentFlags().IntVarP(&length, "length", "l", 5, "set input string length (max 16)")
+	rootCmd.PersistentFlags().StringVarP(&write, "write", "w", "", "write result to a file")
 
 	rootCmd.Execute()
 }
@@ -60,6 +63,8 @@ func cli(check bool, length int, print bool, write string) {
 		color.White("Checking ...")
 		if isSuperpermutation(value, sp) {
 			color.Cyan("Check has passed!")
+		} else {
+			color.Red("Error: cannot not confirm result is a superpermutation")
 		}
 	}
 
@@ -126,16 +131,46 @@ func factorial(a int) int {
 	return b
 }
 
-// TODO imporve perf (goroutines?)
-func isSuperpermutation(input, guess string) bool {
-	for _, permutation := range permutations(strings.Split(input, "")) {
-		if strings.Index(guess, permutation) == -1 {
-			return false
+func isSuperpermutation(input, superpermutation string) bool {
+	ps := permutations(strings.Split(input, ""))
+
+	// seperating permutations into buckets
+	bucketCount := int(math.Min(32.0, float64(len(ps))))
+	bucketSize := len(ps) / bucketCount
+	bucketDrop := len(ps) % bucketCount
+	buckets := make([][]string, bucketCount)
+	for i := 0; i < bucketCount; i++ {
+		start := i*bucketSize + int(math.Min(float64(i), float64(bucketDrop)))
+		end := start + bucketSize - 1
+		if i < bucketDrop {
+			end++
 		}
+		buckets = append(buckets, ps[start:end])
 	}
-	return true
+
+	index := suffixarray.New([]byte(superpermutation))
+
+	// checking bucket that all bucket values are in the index
+	status := true
+	wg := sync.WaitGroup{}
+	for _, b := range buckets {
+		subset := b
+		wg.Add(1)
+		go func() {
+			for _, p := range subset {
+				if len(index.Lookup([]byte(p), 1)) == 0 {
+					status = false
+				}
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+
+	return status
 }
 
+// TODO improve perf
 func permutations(input []string) []string {
 	if len(input) == 1 {
 		return input
