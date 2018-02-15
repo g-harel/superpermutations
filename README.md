@@ -4,7 +4,7 @@ A superpermutation of the string `n` is another string that contains all the per
 
 The algorithm starts with the original string `n` and appends the next character(s). The number of appended characters is taken from a sequence of integers that represent how many characters need to be shifted at any point.
 
-##### Shift sequences
+#### Shift sequences
 
 | `len(n)` | sequence |
 | --- | --- |
@@ -37,11 +37,13 @@ When the shift (`s`) is larger than one, the first `s` characters of the most re
 
 [more information about superpermutations](http://www.njohnston.ca/2013/04/the-minimal-superpermutation-problem/)
 
-## Running
+## Usage
 
 ```shell
-$ go get -u github.com/g-harel/superpermutations
+$ go get -u github.com/g-harel/superpermutations/superpermutations
 ```
+
+### CLI
 
 ```
 Usage:
@@ -53,4 +55,18 @@ Flags:
       --length int     set input string length (max 16) (default 5)
       --print          print the result (may be very large)
       --write string   write result to a file
+```
+
+### Package
+
+```go
+import "github.com/g-harel/superpermutations"
+
+func main() {
+  // generate superpermutation
+  s := superpermutations.Find("01234")
+
+  // confirm that it contains all permutations
+  fmt.Println(superpermutations.Check("01234", s))
+}
 ```
