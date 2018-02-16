@@ -1,8 +1,10 @@
 # superpermutations
 
-A superpermutation of the string `n` is another string that contains all the permutations of the characters in `n`. For example, `1221` is a superpermutation of `12`. However, `121` is a shorter superpermutation of `12` because it leverages overlapping characters to shorten the total length. This repository contains code to produce superpermutations that are close to minimal or minimal (proving a superpermutation is minimal for any `n` is still an open problem).
+A superpermutation of the string `n` is another string that contains all the permutations of the characters in `n`. For example, `1221` is a superpermutation of `12`. However, `121` is a shorter superpermutation of `12` because it overlapps characters.
 
-The algorithm starts with the original string `n` and appends the next character(s). The number of appended characters is taken from a sequence of integers that represent how many characters need to be shifted at any point.
+This repository contains code to produce superpermutations that are close to minimal (proving a superpermutation is minimal for any `n` is still an open problem).
+
+The algorithm starts with the original string `n` and progressively appends the next character(s). The number of shifted/appended characters each iteration is taken from a sequence of integers.
 
 #### Shift sequences
 
@@ -30,7 +32,7 @@ When the shift (`s`) is larger than one, the first `s` characters of the most re
 1234         shift(1)
  2341        shift(1)
   3412       shift(1)
-     2143    shift(3)
+     2143    shift(3) 341 -> 143
       1432   shift(1)
 1234121432   ...
 ```
@@ -50,11 +52,11 @@ Usage:
   superpermutations [flags]
 
 Flags:
-      --check          check correctness of result
+  -c, --check          check correctness of result
   -h, --help           help for superpermutations
-      --length int     set input string length (max 16) (default 5)
-      --print          print the result (may be very large)
-      --write string   write result to a file
+  -l, --length int     set input string length (max 16) (default 5)
+  -p, --print          print the result (may be very large)
+  -w, --write string   write result to a file
 ```
 
 ### Package
