@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io/ioutil"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/g-harel/superpermutations"
@@ -28,6 +29,8 @@ func init() {
 }
 
 func runRoot() {
+	var t time.Time
+
 	min := 0
 	max := 13
 	if length <= min {
@@ -41,6 +44,7 @@ func runRoot() {
 	value := "0123456789abc"[:length]
 
 	color.White("Computing for length %d ...", length)
+	t = time.Now()
 
 	sp := superpermutations.Find(value)
 
@@ -48,12 +52,13 @@ func runRoot() {
 		color.Magenta(sp)
 	}
 
-	color.Cyan("Found, size: %d chars\n", len(sp))
+	color.Cyan("Found, size: %d chars (%s)\n", len(sp), time.Since(t))
 
 	if check {
 		color.White("Checking ...")
+		t = time.Now()
 		if superpermutations.Check(value, sp) {
-			color.Cyan("Check has passed!")
+			color.Cyan("Check has passed! (%s)", time.Since(t))
 		} else {
 			color.Red("Error: cannot not confirm result is a superpermutation")
 		}
