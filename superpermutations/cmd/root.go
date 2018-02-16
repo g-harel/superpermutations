@@ -15,7 +15,9 @@ var write string
 
 var rootCmd = &cobra.Command{
 	Use: "superpermutations",
-	Run: func(cmd *cobra.Command, args []string) {},
+	Run: func(cmd *cobra.Command, args []string) {
+		runRoot()
+	},
 }
 
 func init() {
@@ -25,10 +27,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&write, "write", "w", "", "write result to a file")
 }
 
-// Execute reads arguments and runs the desired action.
-func Execute() {
-	rootCmd.Execute()
-
+func runRoot() {
 	min := 0
 	max := 13
 	if length <= min {
@@ -39,11 +38,7 @@ func Execute() {
 		return
 	}
 
-	chars := "0123456789abcdef"
-	value := ""
-	for i := 0; i < length; i++ {
-		value += string(chars[i])
-	}
+	value := "0123456789abc"[:length]
 
 	color.White("Computing for length %d ...", length)
 
@@ -73,4 +68,9 @@ func Execute() {
 			color.Cyan("Written successfully to \"%v\"", write)
 		}
 	}
+}
+
+// Execute executes the root command.
+func Execute() {
+	rootCmd.Execute()
 }
