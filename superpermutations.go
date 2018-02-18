@@ -84,20 +84,48 @@ func Check(input, superpermutation string) bool {
 	return status
 }
 
-// recursively generates permutations of input slice
+// TODO distribute inside
+// converted from java https://codereview.stackexchange.com/a/101829/105607
 func permutations(input []byte) [][]byte {
-	if len(input) == 1 {
-		return [][]byte{input}
+	size := len(input)
+
+	array := make([]int, size)
+	factorials := make([]int, size)
+	numPermutations := factorial(size)
+
+	res := make([][]byte, numPermutations)
+
+	for i := 0; i < size; i++ {
+		factorials[i] = factorial(size - 1 - i)
 	}
 
-	p := [][]byte{}
-	for i, char := range input {
-		for _, s := range permutations(splice(input, i)) {
-			p = append(p, append([]byte{char}, s...))
+	for i := 0; i < numPermutations; i++ {
+		combination := i
+		remainingBitmask := (1 << uint(size)) - 1
+
+		for j := 0; j < size; j++ {
+			whichNumber := combination / factorials[j]
+			combination %= factorials[j]
+
+			bits := remainingBitmask
+			for whichNumber > 0 {
+				bits -= (bits & -bits)
+				whichNumber--
+			}
+
+			nextNum := trailingZeros(bits)
+			remainingBitmask &= ^(1 << uint(nextNum))
+			array[j] = nextNum
 		}
+
+		perm := make([]byte, size)
+		for i, v := range array {
+			perm[i] = input[v]
+		}
+		res[i] = perm
 	}
 
-	return p
+	return res
 }
 
 // divides the values of count into almost equal buckets (max difference of 1)
@@ -143,4 +171,19 @@ func splice(input []byte, index int) []byte {
 	subset = append(subset, input[:index]...)
 	subset = append(subset, input[index+1:]...)
 	return subset
+}
+
+// count trailing zeros in binary form
+func trailingZeros(n int) int {
+	if n == 0 {
+		return 63
+	}
+
+	s := 0
+	for (n & 1) == 0 {
+		s++
+		n >>= 1
+	}
+
+	return s
 }
