@@ -50,24 +50,34 @@ func Find(value string) string {
 
 // Check verifies that the the second argument is a superpermutation of the first.
 func Check(input, superpermutation string) bool {
-	var index *suffixarray.Index
-
+	// computing permutations
+	// derived from https://codereview.stackexchange.com/a/101829/105607
 	length := len(input)
 	ps := make([][]byte, factorial(length))
+	wg := distribute(len(ps), func(start, end int) {
+		for i := start; i <= end; i++ {
+			combination := i
+			remainingBitmask := (1 << uint(length)) - 1
+			ps[i] = make([]byte, length)
 
-	// computing permutations in len(input) goroutines
-	wg := distribute(length, func(current, _ int) {
-		inc := current * factorial(length-1)
-		for i, p := range permutations(splice([]byte(input), current)) {
-			ps[inc+i] = append([]byte{input[current]}, p...)
+			for j := 0; j < length; j++ {
+				whichNumber := combination / factorial(length-1-j)
+				combination %= factorial(length - 1 - j)
+
+				bits := remainingBitmask
+				for whichNumber > 0 {
+					bits -= (bits & -bits)
+					whichNumber--
+				}
+
+				nextNum := trailingZeros(bits)
+				remainingBitmask &= ^(1 << uint(nextNum))
+				ps[i][j] = input[nextNum]
+			}
 		}
 	})
 
-	wg.Add(1)
-	go func() {
-		index = suffixarray.New([]byte(superpermutation))
-		wg.Done()
-	}()
+	index := suffixarray.New([]byte(superpermutation))
 
 	wg.Wait()
 
@@ -82,50 +92,6 @@ func Check(input, superpermutation string) bool {
 	}).Wait()
 
 	return status
-}
-
-// TODO distribute inside
-// converted from java https://codereview.stackexchange.com/a/101829/105607
-func permutations(input []byte) [][]byte {
-	size := len(input)
-
-	array := make([]int, size)
-	factorials := make([]int, size)
-	numPermutations := factorial(size)
-
-	res := make([][]byte, numPermutations)
-
-	for i := 0; i < size; i++ {
-		factorials[i] = factorial(size - 1 - i)
-	}
-
-	for i := 0; i < numPermutations; i++ {
-		combination := i
-		remainingBitmask := (1 << uint(size)) - 1
-
-		for j := 0; j < size; j++ {
-			whichNumber := combination / factorials[j]
-			combination %= factorials[j]
-
-			bits := remainingBitmask
-			for whichNumber > 0 {
-				bits -= (bits & -bits)
-				whichNumber--
-			}
-
-			nextNum := trailingZeros(bits)
-			remainingBitmask &= ^(1 << uint(nextNum))
-			array[j] = nextNum
-		}
-
-		perm := make([]byte, size)
-		for i, v := range array {
-			perm[i] = input[v]
-		}
-		res[i] = perm
-	}
-
-	return res
 }
 
 // divides the values of count into almost equal buckets (max difference of 1)
