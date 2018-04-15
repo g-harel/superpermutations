@@ -15,7 +15,7 @@ The algorithm starts with the original string `n` and progressively appends more
 | 3 | `112` |
 | 4 | `111211121113` |
 | 5 | `111121111211112111131111211112111121111311112111121111211114` |
-| `...` | `...` |
+| ... | `...` |
 
 When the shift is of 1, the first character of the most recent permutation can be appended to the end of the string. This adds a unique permutation of the string `n` to the end of the result string.
 
@@ -58,6 +58,7 @@ Flags:
   -o, --out string   write result to a file
   -p, --print        print the result (may be very large)
   -s, --silent       silence all output (except --print)
+      --version      version for superpermutations
 ```
 
 ### Package

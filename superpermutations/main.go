@@ -36,7 +36,8 @@ func log(p func(string, ...interface{}), f string, a ...interface{}) {
 }
 
 var command = &cobra.Command{
-	Use: "superpermutations",
+	Use:     "superpermutations",
+	Version: "1.0.0",
 	Run: func(cmd *cobra.Command, args []string) {
 		var t time.Time
 
