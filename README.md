@@ -2,9 +2,9 @@
 
 A superpermutation of the string `n` is another string that contains all the permutations of the characters in `n`. For example, `1221` is a superpermutation of `12`. However, `121` is a shorter superpermutation of `12` because it overlapps characters.
 
-This repository contains code to produce superpermutations that are close to minimal (proving a superpermutation is minimal for any `n` is still an open problem).
+This repository contains code to produce superpermutations that are close to minimal (proving a superpermutation is minimal for any `n` is still not a solved problem).
 
-The algorithm starts with the original string `n` and progressively appends the next character(s). The number of shifted/appended characters each iteration is taken from a sequence of integers.
+The algorithm starts with the original string `n` and progressively appends more character(s). The number of appended/shifted characters each iteration is taken from a sequence of integers which is generated from the input string's length.
 
 #### Shift sequences
 
@@ -52,11 +52,12 @@ Usage:
   superpermutations [flags]
 
 Flags:
-  -c, --check          check correctness of result
-  -h, --help           help for superpermutations
-  -l, --length int     set input string length (max 16) (default 5)
-  -p, --print          print the result (may be very large)
-  -w, --write string   write result to a file
+  -c, --check        check correctness of result (big performance hit)
+  -h, --help         help for superpermutations
+  -l, --length int   set input string length (max 16) (default 5)
+  -o, --out string   write result to a file
+  -p, --print        print the result (may be very large)
+  -s, --silent       silence all output (except --print)
 ```
 
 ### Package
