@@ -52,13 +52,14 @@ Usage:
   superpermutations [flags]
 
 Flags:
-  -c, --check        check correctness of result (big performance hit)
-  -h, --help         help for superpermutations
-  -l, --length int   set input string length (max 16) (default 5)
-  -o, --out string   write result to a file
-  -p, --print        print the result (may be very large)
-  -s, --silent       silence all output (except --print)
-      --version      version for superpermutations
+  -c, --check          check correctness of result (big performance hit)
+  -h, --help           help for superpermutations
+  -l, --length int     set input string length (max 13) (default 5)
+  -o, --out string     write result to a file
+  -p, --print          print the result (may be very large)
+  -r, --runes string   custom list of chars (looped if < length)
+  -s, --silent         silence all output (except --print)
+      --version        version for superpermutations
 ```
 
 ### Package

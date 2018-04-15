@@ -1,10 +1,10 @@
 #!/bin/sh
 
-OUTDIR=build
+# go get -u github.com/mitchellh/gox
 
-rm -rf ./$OUTDIR
-
-export GOARCH=amd64
-GOOS=linux  ; go build -o $OUTDIR/superpermutations-linux-amd64
-GOOS=darwin ; go build -o $OUTDIR/superpermutations-darwin-amd64
-GOOS=windows; go build -o $OUTDIR/superpermutations-windows-amd64.exe
+gox                                              \
+    -arch="amd64"                                \
+    -os="linux darwin windows"                   \
+    -output="./build/{{.Dir}}-{{.OS}}-{{.Arch}}" \
+    -rebuild                                     \
+    ./superpermutations
