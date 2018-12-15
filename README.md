@@ -39,6 +39,8 @@ When the shift (`s`) is larger than one, the first `s` characters of the most re
 
 [more information about superpermutations](http://www.njohnston.ca/2013/04/the-minimal-superpermutation-problem/)
 
+[more information about the integer sequences](https://oeis.org/A235748)
+
 ## Usage
 
 ```shell
