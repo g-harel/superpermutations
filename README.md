@@ -1,6 +1,6 @@
 # superpermutations
 
-A superpermutation of the string `n` is another string that contains all the permutations of the characters in `n`. For example, `1221` is a superpermutation of `12`. However, `121` is a shorter superpermutation of `12` because it overlapps characters.
+A superpermutation of the string `n` is another string that contains all the permutations of the characters in `n`. For example, `1221` is a superpermutation of `12`. However, `121` is a shorter superpermutation of `12` because it overlaps characters.
 
 This repository contains code to produce superpermutations that are close to minimal (proving a superpermutation is minimal for any `n` is still not a solved problem).
 
